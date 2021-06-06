@@ -73,6 +73,7 @@ button {
     border: solid 2px #f1f1f1;
     border-radius: 5px;
     margin-bottom: 20px;
+    transition: background-color .25s ease-in-out
 }
 
 .item__buttons {
