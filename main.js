@@ -94,9 +94,12 @@ document.addEventListener("DOMContentLoaded", () =>
     form.form.addEventListener("submit", (event) =>
     {
         event.preventDefault()
-        let item = createToDoItem(form.input.value)
-        form.input.value = ""
-        form.button.disabled = "true"
-        list.prepend(item)
+        if (form.input.value)
+        {
+            let item = createToDoItem(form.input.value)
+            form.input.value = ""
+            form.button.disabled = "true"
+            list.prepend(item)
+        }
     })
 })
