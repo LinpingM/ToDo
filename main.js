@@ -33,7 +33,6 @@ function createToDoForm()
     return {
         form,
         input,
-        button,
     }
 }
 
