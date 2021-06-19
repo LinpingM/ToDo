@@ -1,65 +1,102 @@
-function begin()
+function createHeader(header)
 {
-    let form = document.querySelector(".container__add-form")
-    form.addEventListener("submit", function(event)
-    {
-        event.preventDefault()
-        let input = document.querySelector(".add-form__input")
-        if (input.value)
-        {
-            createTask()
-        }    
-    }
-    )
+    let h1 = document.createElement("h1")
+    h1.textContent = header
+    return h1
 }
 
-function createTask()
+function createToDoForm()
 {
-    let li = document.createElement("li")
+    let form = document.createElement("form")
+    let input = document.createElement("input")
+    let button = document.createElement("button")
+
+    form.classList.add("container__add-form")
+    input.classList.add("add-form__input")
+    button.classList.add("add-form__button")
+
+    input.type = "text"
+    input.placeholder = "Введите название нового дела"
+
+    button.textContent = "Добавить дело"
+    button.type = "submit"
+    button.disabled = "true"
+
+    input.addEventListener("keyup", () =>
+    {
+        button.disabled = input.value === ""
+    })
+
+    form.append(input)
+    form.append(button)
+
+    return {
+        form,
+        input,
+        button,
+    }
+}
+
+function createToDoList()
+{
+    let ul = document.createElement("ul")
+    ul.classList.add("container__tasks-list")
+    return ul
+}
+
+function createToDoItem(name)
+{
+    let item = document.createElement("li")
     let p = document.createElement("p")
     let buttons = document.createElement("div")
     let readyButton = document.createElement("button")
     let deleteButton = document.createElement("button")
 
-    li.append(p)
-    li.append(buttons)
-    buttons.append(readyButton, deleteButton)
-
-    li.classList.add("tasks-list__item")
+    item.classList.add("tasks-list__item")
     p.classList.add("item__task")
     buttons.classList.add("item__buttons")
     readyButton.classList.add("buttons__button", "ready")
     deleteButton.classList.add("buttons__button", "delete")
 
-    p.textContent = document.querySelector(".add-form__input").value
-    document.querySelector(".add-form__input").value = ""
+    p.textContent = name
     readyButton.textContent = "Готово"
     deleteButton.textContent = "Удалить"
 
-    readyButton.addEventListener("click", function(event) {complete(event)})
-    deleteButton.addEventListener("click", function(event) {deleteTask(event)})
+    item.append(p)
+    buttons.append(readyButton, deleteButton)
+    item.append(buttons)
 
-    ul = document.querySelector(".container__tasks-list")
-    ul.prepend(li)
-}
-
-function complete(event)
-{
-    let li = event.target.parentNode.parentNode
-    let p = li.firstChild
-
-    li.classList.toggle("complete-li")
-    p.classList.toggle("complete-p")
-}
-
-function deleteTask(event)
-{
-    if (confirm("Вы уверены?"))
+    readyButton.addEventListener("click", (event) =>
     {
-        let li = event.target.parentNode.parentNode
-        li.remove()
-    }
+        item.classList.toggle("complete-li")
+    })
+
+    deleteButton.addEventListener("click", (event) =>
+    {
+        item.remove()
+    })
     
+    return item
 }
 
-begin()
+document.addEventListener("DOMContentLoaded", () =>
+{
+    let container = document.querySelector(".container")
+
+    let header = createHeader("Список дел")
+    let form = createToDoForm()
+    let list = createToDoList()
+
+    container.append(header)
+    container.append(form.form)
+    container.append(list)
+
+    form.form.addEventListener("submit", (event) =>
+    {
+        event.preventDefault()
+
+        let item = createToDoItem(form.input.value)
+        form.input.value = ""
+        list.prepend(item)
+    })
+})

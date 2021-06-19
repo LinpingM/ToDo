@@ -9,14 +9,6 @@ button {
     cursor: pointer;
 }
 
-.complete-li {
-    background-color: #c7dfcc;
-}
-
-.complete-p {
-    color: #2c4b2d;
-}
-
 .container {
     max-width: 1000px;
     width: 100%;
@@ -58,6 +50,11 @@ button {
 
 .add-form__button:hover {
     background-color: #1c6adc;
+}
+
+.add-form__button:disabled {
+    background-color: #cacaca;
+    border-color: #adadad;
 }
 
 .container__tasks-list {
@@ -115,4 +112,9 @@ button {
 
 .item__task {
     margin-right: 20px;
+}
+
+.complete-li {
+    background-color: #c7dfcc;
+    color: #2f6631;
 }
