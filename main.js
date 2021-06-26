@@ -24,7 +24,12 @@ function createToDoForm()
 
     input.addEventListener("keyup", () =>
     {
-        button.disabled = input.value.trim() === ""
+        let namesArray = []
+        for (let item of JSON.parse(localStorage.getItem("toDoItems")))
+        {
+            namesArray.push(item.name)
+        }
+        button.disabled = input.value.trim() === "" || namesArray.includes(input.value)
     })
 
     form.append(input)
@@ -108,7 +113,7 @@ document.addEventListener("DOMContentLoaded", () =>
                 let localStoragesToDoItems = localStorage.getItem("toDoItems")
                 localStoragesToDoItems = localStoragesToDoItems.replace(JSON.stringify({name: toDoItem.name, done: containsComplete}), JSON.stringify({name: toDoItem.name, done: !containsComplete}))
                 localStorage.setItem("toDoItems", localStoragesToDoItems)
-                
+
                 toDoItem.item.classList.toggle("complete-li")
             })
 
