@@ -24,7 +24,7 @@ function createToDoForm()
 
     input.addEventListener("keyup", () =>
     {
-        button.disabled = input.value === ""
+        button.disabled = input.value.trim() === ""
     })
 
     form.append(input)
@@ -44,7 +44,7 @@ function createToDoList()
     return ul
 }
 
-function createToDoItem(name)
+function createToDoItem(name, done=null)
 {
     let item = document.createElement("li")
     let p = document.createElement("p")
@@ -52,7 +52,7 @@ function createToDoItem(name)
     let readyButton = document.createElement("button")
     let deleteButton = document.createElement("button")
 
-    item.classList.add("tasks-list__item")
+    item.classList.add("tasks-list__item", done)
     p.classList.add("item__task")
     buttons.classList.add("item__buttons")
     readyButton.classList.add("buttons__button", "ready")
@@ -66,21 +66,18 @@ function createToDoItem(name)
     buttons.append(readyButton, deleteButton)
     item.append(buttons)
 
-    readyButton.addEventListener("click", (event) =>
-    {
-        item.classList.toggle("complete-li")
-    })
+    return {
+        item,
+        name,
+        readyButton,
+        deleteButton,
 
-    deleteButton.addEventListener("click", (event) =>
-    {
-        item.remove()
-    })
-    
-    return item
+    }
 }
 
 document.addEventListener("DOMContentLoaded", () =>
 {
+    //localStorage.clear()
     let container = document.querySelector(".container")
 
     let header = createHeader("Список дел")
@@ -96,10 +93,93 @@ document.addEventListener("DOMContentLoaded", () =>
         event.preventDefault()
         if (form.input.value)
         {
-            let item = createToDoItem(form.input.value)
+            let toDoItem = createToDoItem(form.input.value)
             form.input.value = ""
             form.button.disabled = "true"
-            list.prepend(item)
+            list.prepend(toDoItem.item)
+
+            let localStoragesToDoItems = JSON.parse(localStorage.getItem("toDoItems"))
+            localStoragesToDoItems.push({name: toDoItem.name, done: false})
+            localStorage.setItem("toDoItems", JSON.stringify(localStoragesToDoItems))
+
+            toDoItem.readyButton.addEventListener("click", (event) =>
+            {
+                let containsComplete = toDoItem.item.classList.contains("complete-li")
+                let localStoragesToDoItems = localStorage.getItem("toDoItems")
+                localStoragesToDoItems = localStoragesToDoItems.replace(JSON.stringify({name: toDoItem.name, done: containsComplete}), JSON.stringify({name: toDoItem.name, done: !containsComplete}))
+                localStorage.setItem("toDoItems", localStoragesToDoItems)
+                
+                toDoItem.item.classList.toggle("complete-li")
+            })
+
+            toDoItem.deleteButton.addEventListener("click", (event) =>
+            {
+                let containsComplete = toDoItem.item.classList.contains("complete-li")
+                let localStoragesToDoItems = localStorage.getItem("toDoItems")
+                if (JSON.parse(localStoragesToDoItems).length === 1)
+                {
+                    localStoragesToDoItems = localStoragesToDoItems.replace(JSON.stringify({name: toDoItem.name, done: containsComplete}), "")
+                } else if (localStoragesToDoItems.startsWith("[" + JSON.stringify({name: toDoItem.name, done: containsComplete})))
+                {
+                    localStoragesToDoItems = localStoragesToDoItems.replace(JSON.stringify({name: toDoItem.name, done: containsComplete}) + ",", "")
+                } else {
+                    localStoragesToDoItems = localStoragesToDoItems.replace("," + JSON.stringify({name: toDoItem.name, done: containsComplete}), "")
+                }
+
+                localStorage.setItem("toDoItems", localStoragesToDoItems)
+
+                toDoItem.item.remove()
+            })
         }
     })
+
+    let localStoragesToDoItems = localStorage.getItem("toDoItems")
+    if (localStoragesToDoItems === null)
+    {
+        localStorage.setItem("toDoItems", "[]")
+        localStoragesToDoItems = []
+    } else {
+        localStoragesToDoItems = JSON.parse(localStoragesToDoItems)
+        for (let localStoragesToDoItem of localStoragesToDoItems)
+        {
+            let done
+            if (localStoragesToDoItem.done)
+            {
+                done = "complete-li"
+            }
+
+            let toDoItem = createToDoItem(localStoragesToDoItem.name, done)
+            list.prepend(toDoItem.item)
+
+            toDoItem.readyButton.addEventListener("click", (event) =>
+            {
+                let containsComplete = toDoItem.item.classList.contains("complete-li")
+                let localStoragesToDoItems = localStorage.getItem("toDoItems")
+                localStoragesToDoItems = localStoragesToDoItems.replace(JSON.stringify({name: toDoItem.name, done: containsComplete}), JSON.stringify({name: toDoItem.name, done: !containsComplete}))
+                localStorage.setItem("toDoItems", localStoragesToDoItems)
+
+                toDoItem.item.classList.toggle("complete-li")
+            })
+
+            toDoItem.deleteButton.addEventListener("click", (event) =>
+            {
+                let containsComplete = toDoItem.item.classList.contains("complete-li")
+                let localStoragesToDoItems = localStorage.getItem("toDoItems")
+
+                if (JSON.parse(localStoragesToDoItems).length === 1)
+                {
+                    localStoragesToDoItems = localStoragesToDoItems.replace(JSON.stringify({name: toDoItem.name, done: containsComplete}), "")
+                } else if (localStoragesToDoItems.startsWith("[" + JSON.stringify({name: toDoItem.name, done: containsComplete})))
+                {
+                    localStoragesToDoItems = localStoragesToDoItems.replace(JSON.stringify({name: toDoItem.name, done: containsComplete}) + ",", "")
+                } else {
+                    localStoragesToDoItems = localStoragesToDoItems.replace("," + JSON.stringify({name: toDoItem.name, done: containsComplete}), "")
+                }
+
+                localStorage.setItem("toDoItems", localStoragesToDoItems)
+
+                toDoItem.item.remove()
+            })
+        }
+    }
 })
